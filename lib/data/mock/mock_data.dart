@@ -4,7 +4,7 @@ import '../models/ride_models.dart';
 import '../models/user_models.dart';
 import '../models/wallet_models.dart';
 
-// كل الداتا fake لحد ما يبقى فيه backend
+// كل الداتا  مجرد Fake data عشان التاسك محتاج ui بس 
 // الأسماء والأماكن keys بتتترجم من assets/lang
 class MockData {
   MockData._();
@@ -15,20 +15,17 @@ class MockData {
     OnboardingSlide(
       titleKey: 'onb_title_1',
       bodyKey: 'onb_body_1',
-      icon: Icons.local_taxi_rounded,
-      badge: Icons.location_on_rounded,
+      image: 'assets/images/onboarding_1.png',
     ),
     OnboardingSlide(
       titleKey: 'onb_title_2',
       bodyKey: 'onb_body_2',
-      icon: Icons.directions_car_filled_rounded,
-      badge: Icons.star_rounded,
+      image: 'assets/images/onboarding_2.png',
     ),
     OnboardingSlide(
       titleKey: 'onb_title_3',
       bodyKey: 'onb_body_3',
-      icon: Icons.verified_user_rounded,
-      badge: Icons.lock_rounded,
+      image: 'assets/images/onboarding_3.png',
     ),
   ];
 

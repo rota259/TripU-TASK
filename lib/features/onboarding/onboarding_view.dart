@@ -9,6 +9,9 @@ import 'onboarding_viewmodel.dart';
 import 'widgets/onboarding_footer.dart';
 import 'widgets/onboarding_page.dart';
 
+// نفس لون الديزاين، وفي الدارك مود بيغمق شوية
+const onboardingBlue = Color(0xFF1F63EE);
+
 class OnboardingView extends StatefulWidget {
   const OnboardingView({super.key});
 
@@ -20,8 +23,8 @@ class _OnboardingViewState extends State<OnboardingView> {
   final _pages = PageController();
 
   void _next() => _pages.nextPage(
-        duration: const Duration(milliseconds: 450),
-        curve: Curves.easeOutCubic,
+        duration: const Duration(milliseconds: 500),
+        curve: Curves.easeInOutCubic,
       );
 
   @override
@@ -32,69 +35,52 @@ class _OnboardingViewState extends State<OnboardingView> {
 
   @override
   Widget build(BuildContext context) {
+    final bg = context.isDark ? const Color(0xFF173E9E) : onboardingBlue;
     return ChangeNotifierProvider(
       create: (c) => OnboardingViewModel(c.read<SettingsViewModel>()),
       child: Consumer<OnboardingViewModel>(
         builder: (context, vm, _) => Scaffold(
-          body: DecoratedBox(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: context.colors.heroGradient,
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-              ),
-            ),
-            child: SafeArea(
-              child: ResponsiveCenter(
-                child: Column(children: [
-                  _TopBar(onSkip: vm.finish, showSkip: !vm.isLast),
+          backgroundColor: bg,
+          body: SafeArea(
+            child: ResponsiveCenter(
+              maxWidth: 480,
+              child: Stack(children: [
+                Column(children: [
                   Expanded(
                     child: PageView.builder(
                       controller: _pages,
                       onPageChanged: vm.onPageChanged,
                       itemCount: vm.slides.length,
-                      itemBuilder: (_, i) => OnboardingPage(slide: vm.slides[i]),
+                      itemBuilder: (_, i) => OnboardingPage(
+                        slide: vm.slides[i],
+                        index: i,
+                        controller: _pages,
+                      ),
                     ),
                   ),
                   OnboardingFooter(vm: vm, onNext: _next),
                 ]),
-              ),
+                // Skip في نفس سطر العنوان زي الديزاين، وبيختفي في آخر صفحة
+                PositionedDirectional(
+                  top: 18,
+                  end: 12,
+                  child: AnimatedOpacity(
+                    opacity: vm.isLast ? 0 : 1,
+                    duration: const Duration(milliseconds: 250),
+                    child: TextButton(
+                      onPressed: vm.isLast ? null : vm.finish,
+                      child: Text(
+                        context.tr('skip'),
+                        style: context.texts.labelLarge?.copyWith(color: Colors.white, fontSize: 13),
+                      ),
+                    ),
+                  ),
+                ),
+              ]),
             ),
           ),
         ),
       ),
-    );
-  }
-}
-
-class _TopBar extends StatelessWidget {
-  const _TopBar({required this.onSkip, required this.showSkip});
-
-  final VoidCallback onSkip;
-  final bool showSkip;
-
-  @override
-  Widget build(BuildContext context) {
-    final settings = context.read<SettingsViewModel>();
-    final style = context.texts.bodyMedium?.copyWith(color: Colors.white70);
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-      child: Row(children: [
-        TextButton.icon(
-          onPressed: settings.toggleLanguage,
-          icon: const Icon(Icons.translate_rounded, size: 18, color: Colors.white70),
-          label: Text(context.tr('switch_lang'), style: style),
-        ),
-        const Spacer(),
-        AnimatedOpacity(
-          opacity: showSkip ? 1 : 0,
-          duration: const Duration(milliseconds: 250),
-          child: TextButton(
-            onPressed: showSkip ? onSkip : null,
-            child: Text(context.tr('skip'), style: style),
-          ),
-        ),
-      ]),
     );
   }
 }
